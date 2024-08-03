@@ -8,6 +8,11 @@ let forecast_line=$((date_line + forecast_offset))
 #noon = 2
 let target_timing_offset=2
 
+curl --silent -o file wttr.in/casablanca
+if [[ "$?" -ne 0 ]]; then
+	echo "failed to fetch data from wttr.in"
+	exit 1
+fi
  
 
 for i in {0..2}; do
@@ -17,6 +22,7 @@ for i in {0..2}; do
 	month=${arr[2]}
 	if [[ `date +%d` == "${day}" ]]; then
 		forecast_temp="`head -n ${forecast_line} file | tail -n 1 | grep -ohP "\+\d+" | head -n $target_timing_offset | tail -n 1`"
+		forecast_temp=`echo $forecast_temp | grep -ohP "\d+"`
 		break;
 	fi
 	
@@ -25,5 +31,17 @@ for i in {0..2}; do
 	let forecast_line=$((date_line + forecast_offset))
 done
 
-actual_temp="10"
-echo "${year} - ${month} - ${day} - ${actual_temp} - ${forecast_temp}"
+
+actual_temp=`curl --silent wttr.in/casablanca?format=%t`
+if [[ "$?" -ne 0 ]]; then
+	echo "failed to fetch data from wttr.in"
+	exit 1
+fi
+
+
+actual_temp=`echo $actual_temp | grep -ohP '\d+'`
+
+echo "-------------------------------------------------------------------------"
+echo -e "year\t|\tmonth\t|\tday\t|\tobs_tmp\t|\tfc_temp"
+echo -e "${year}\t|\t${month}\t|\t${day}\t|\t${actual_temp}\t|\t${forecast_temp}"
+echo "-------------------------------------------------------------------------"
