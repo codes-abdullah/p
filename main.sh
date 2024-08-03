@@ -11,22 +11,24 @@ sep="-------------------------------------------------------------------------"
 log="./log.txt"
 echo "working, please wait..."
 weather="tmp.txt"
+city=casablanca
 
 ################################## initial log file
 if test ! -f $log; then
 	echo $sep >> $log
 	echo -e "year\t|\tmonth\t|\tday\t|\tobs_tmp\t|\tfc_temp" >> $log
+	echo $sep >> $log
 fi
 
 ################################## write forecasted weather to file
-curl --silent -o $weather wttr.in/casablanca
+curl --silent -o $weather wttr.in/$city
 if [[ "$?" -ne 0 ]]; then
 	echo "failed to fetch data from wttr.in"
 	exit 1
 fi
 
 ################################## get actual temp
-actual_temp=`curl --silent wttr.in/casablanca?format=%t`
+actual_temp=`curl --silent wttr.in/$city?format=%t`
 if [[ "$?" -ne 0 ]]; then
 	echo "failed to fetch data from wttr.in"
 	exit 1
@@ -51,10 +53,10 @@ for i in {0..2}; do
 done
 
 ################################## write the report to log file
-echo $sep >> $log
 echo -e "${year}\t|\t${month}\t|\t${day}\t|\t${actual_temp}\t|\t${forecast_temp}" >> $log
-echo "done, written to $log"
-
+echo "done, log written to $log"
+echo -e "=============="
+echo "analyzing $log file ..."
 ################################## analyze report file
 ./analyze.sh
 
