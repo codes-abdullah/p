@@ -7,6 +7,14 @@ let forecast_offset=4
 let forecast_line=$((date_line + forecast_offset))
 #noon = 2
 let target_timing_offset=2
+sep="-------------------------------------------------------------------------"
+report="./report.txt"
+echo "working, please wait..."
+
+if test ! -f $report; then
+	echo $sep >> $report
+	echo -e "year\t|\tmonth\t|\tday\t|\tobs_tmp\t|\tfc_temp" >> $report
+fi
 
 curl --silent -o file wttr.in/casablanca
 if [[ "$?" -ne 0 ]]; then
@@ -41,7 +49,7 @@ fi
 
 actual_temp=`echo $actual_temp | grep -ohP '\d+'`
 
-echo "-------------------------------------------------------------------------"
-echo -e "year\t|\tmonth\t|\tday\t|\tobs_tmp\t|\tfc_temp"
-echo -e "${year}\t|\t${month}\t|\t${day}\t|\t${actual_temp}\t|\t${forecast_temp}"
-echo "-------------------------------------------------------------------------"
+echo $sep >> $report
+echo -e "${year}\t|\t${month}\t|\t${day}\t|\t${actual_temp}\t|\t${forecast_temp}" >> $report
+
+echo "done, written to $report"
